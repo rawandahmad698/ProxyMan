@@ -20,7 +20,7 @@ A simple Proxy manager for Python
 ProxyMan can be installed using `pip`:
 
 ```shell
-pip install proxyman
+pip install ProxyMan
 ```
 
 ## Usage

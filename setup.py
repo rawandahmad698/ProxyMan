@@ -1,6 +1,12 @@
+import os
+
 from setuptools import setup
 
-with open('README.md', 'r', encoding='utf-8') as f:
+# Get root dir
+main_dir = os.path.dirname(os.path.realpath(__file__))
+main_dir = os.path.dirname(main_dir)
+
+with open(main_dir + "/README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 

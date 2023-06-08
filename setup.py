@@ -2,17 +2,13 @@ import os
 
 from setuptools import setup
 
-# Get root dir
-main_dir = os.path.dirname(os.path.realpath(__file__))
-main_dir = os.path.dirname(main_dir)
-
-with open(main_dir + "/README.md", "r", encoding="utf-8") as f:
+with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 
 setup(
     name='ProxyMan',
-    version='0.0.2',
+    version='0.0.5',
     description='A simple proxy manager for Python with WebShare API support',
     long_description=long_description,
     long_description_content_type='text/markdown',

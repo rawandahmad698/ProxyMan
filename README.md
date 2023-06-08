@@ -30,10 +30,14 @@ pip install ProxyMan
 
 ### Loading proxies from a file
 ```python
-from ProxyMan import ProxyMan
+from ProxyMan import ProxyMan, AuthType
+import os
 
 # Load proxies from a file
-pm = ProxyMan(file_path="proxies.txt")
+current_dir = os.path.dirname(os.path.realpath(__file__))
+current_dir = os.path.dirname(current_dir)
+
+pm = ProxyMan(file_path=current_dir + "/proxies.txt", auth=AuthType.IP)
 ```
 
 ### Configuring ProxyMan

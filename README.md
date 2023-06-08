@@ -2,6 +2,8 @@
 
 A simple Proxy manager for Python
 
+Created with ❤️ by [**@MeshMonitors**](https://twitter.com/meshmonitors_)
+
 ## Features
 
 ✨ Proxy Management:

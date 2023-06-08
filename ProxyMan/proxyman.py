@@ -23,7 +23,7 @@ class AuthType(enum.Enum):
 
 
 class ProxyMan:
-    def __init__(self, api_key: str = None, proxies_to_scrape: int = 3000, auth=AuthType.IP, file_path="../proxies.txt", fail_count=3, scrape_filter=Filter.ALL):
+    def __init__(self, api_key: str = None, proxies_to_scrape: int = 3000, auth=AuthType.IP, file_path="../proxies.txt", fail_count=3, scrape_filter=Filter.ALL, private_endpoint = None):
         self.api_key = api_key
         self.proxies_to_scrape = proxies_to_scrape
         self.parsed_proxies = []
@@ -33,6 +33,7 @@ class ProxyMan:
         self.auth = auth
         self.fail_count = fail_count
         self.scrape_filter = scrape_filter
+        self.private_endpoint = private_endpoint
 
         self.__setup()
 
@@ -136,16 +137,47 @@ class ProxyMan:
 
         return proxies
 
-    async def update_proxies(self):
-        time_now = time.time()
-        request_count = math.ceil(self.proxies_to_scrape / 250) # 250 proxies per page
-        tasks = []
-        print(f">> [PROXYMAN] Refreshing proxies... (This may take a while)")
-        for i in range(1, int(request_count)):
-            tasks.append(asyncio.create_task(self._get_proxies(i)))
+    async def _private_proxies(self):
+        """
+        Private, internal function
+        """
+        endpoint = self.private_endpoint
+        if self.scrape_filter == Filter.US:
+            endpoint += "?country=us"
+        elif self.scrape_filter == Filter.UK:
+            endpoint += "?country_code=uk"
+        elif self.scrape_filter == Filter.FR:
+            endpoint += "?country_code=fr"
+        all_proxies = []
+        async with aiohttp.ClientSession() as session:
+            async with session.get(endpoint) as resp:
+                if resp.status == 200 and 'json' in resp.headers['Content-Type']:
+                    data = await resp.json()
+                    if 'proxies' in data:
+                        results = data['proxies']
+                        all_proxies = results
+                else:
+                    print(f"Error on page {endpoint}: Response={resp.status}")
 
-        all_proxies = await asyncio.gather(*tasks)
-        proxies = [item for sublist in all_proxies for item in sublist]
+        return all_proxies
+
+
+    async def update_proxies(self, private_proxies: bool = False):
+        time_now = time.time()
+        if not private_proxies:
+            request_count = math.ceil(self.proxies_to_scrape / 250) # 250 proxies per page
+            tasks = []
+            print(f">> [PROXYMAN] Refreshing proxies... (This may take a while)")
+            for i in range(1, int(request_count)):
+                tasks.append(asyncio.create_task(self._get_proxies(i)))
+
+            all_proxies = await asyncio.gather(*tasks)
+            proxies = [item for sublist in all_proxies for item in sublist]
+        else:
+            if self.private_endpoint is None:
+                raise Exception("Private endpoint is not set. Please set it before calling this method.")
+
+            proxies = await self._private_proxies()
 
         proxies = list(set(proxies))
 
@@ -182,8 +214,7 @@ class ProxyMan:
 
 
 async def test_update():
-    pm = ProxyMan(auth=AuthType.IP, file_path="proxies.txt", fail_count=3, scrape_filter=Filter.US)
-    await pm.update_proxies()
+    pass
 
 
 if __name__ == "__main__":

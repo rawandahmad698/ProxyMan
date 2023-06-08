@@ -10,5 +10,6 @@ build
 *.pyc
 *.pyo
 *.pyd
+*.txt
 __pycache__/
 
